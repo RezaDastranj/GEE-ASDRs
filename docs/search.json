@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Mortality Modelling using Generalized Estimating Equations",
+    "section": "",
+    "text": "This paper presents an application of Generalized Estimating Equations (GEE) for analyzing age-specific death rates (ASDRs), constituting a longitudinal dataset with repeated measurements over time. GEE models, known for their robustness in handling correlated data, offer a reliable solution when individual data records lack independence, thus violating the commonly assumed independence and identically distributed (iid) condition in traditional models. In the context of ASDRs, where correlations emerge among observations within age groups, two distinct GEE models for single and multipopulation ASDRs are introduced, providing robust estimates for regression parameters and their variances. We explore correlation structures, encompassing independence, AR(1), unstructured, and exchangeable structures, offering a comprehensive evaluation of GEE model efficiency in both single and multipopulation ASDRs. We critically examines the strengths and limitations of GEE models, shedding light on their applicability for mortality forecasting. Through detailed model specifications and empirical illustrations, the study contributes to an enhanced understanding of the nuanced capabilities of GEE models in predicting mortality rates.\nKeywords: Mortality forecasting, Quasi-likelihood, Generalized estimating equations, Longitudinal analysis, Random walks with drift.\nFor more details, refer to the related paper: Mortality Modelling using Generalized Estimating Equations:\nhttps://arxiv.org/abs/2401.11332"
+  },
+  {
+    "objectID": "index.html#list-of-dataset-filenames",
+    "href": "index.html#list-of-dataset-filenames",
+    "title": "Mortality Modelling using Generalized Estimating Equations",
+    "section": "List of Dataset Filenames",
+    "text": "List of Dataset Filenames\n\nmylistmf&lt;-c(\n  \"AUT.fltper_1x1.txt\",\"CZE.fltper_1x1.txt\",\"AUT.mltper_1x1.txt\",\"CZE.mltper_1x1.txt\"\n)\n\nImporting downloaded datasets of AUT and CZE\n\n# Read and preprocess datasets for selected European countries. \n# For each population, a new column 'logmx' is created, representing\n# the logarithm of the 'mx' column. Finally, the dataset is filtered\n# to include only the years between 1991 and 2019\ndat0 &lt;- lapply(c(1:4), function(i) {\n  data.table::data.table(HMDHFDplus::readHMD(mylistmf[i]))[, logmx := log(mx)][1991 &lt;= Year & Year &lt;= 2019][20&lt;=Age & Age &lt;= 80]\n\n})\n\n# Create matrices (M0) for each population's 'logmx' column. \n# Each matrix is of dimensions 59x24, representing the logmx \n# values over the years for a specific population.\nM0 &lt;- lapply(dat0, function(x) matrix(x$logmx, 29, 61, byrow = TRUE))\n\n# Combine matrices horizontally (column-bind) to form a single matrix (MB0)\nMB0 &lt;- do.call(cbind, M0)"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "GEE Modelling Mortality"
+  },
+  {
+    "objectID": "index.html#data-visualization",
+    "href": "index.html#data-visualization",
+    "title": "Mortality Modelling using Generalized Estimating Equations",
+    "section": "Data Visualization",
+    "text": "Data Visualization\n\n# Create a new data frame ASDRsnw with adjusted Age and year columns\nASDRsnw &lt;- ASDRs %&gt;%  \n  mutate(Age = age) %&gt;%\n  mutate(year = as.numeric(as.character(year)))\n\n# Plot ASDR over time with color differentiation based on Age\nggplot(ASDRsnw, aes(year, y, color = Age)) +\n  geom_point(size = .7) +\n  geom_line(linewidth = .5) +\n  xlab(\"Year\") + ylab(\"ASDR (log)\") +\n  theme(axis.text.x = element_blank(),\n        axis.ticks.x = element_blank(),\n        axis.text.y = element_blank(),\n        axis.ticks.y = element_blank()) +\n  theme_bw() +\n  guides(color = guide_legend(override.aes = list(size = 3))) +\n  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +\n  theme(axis.text = element_text(size = 10)) +\n  theme(legend.text = element_text(size = 15)) +\n  theme(axis.title = element_text(size = 20)) +\n  theme(strip.text = element_text(size = 20)) +\n  theme(legend.title = element_text(size = 20))\n\n\n\n\n\nPlot of \\(k_t\\)\n\n# Plot ASDR and k_t over time with color differentiation based on Age\nggplot(ASDRsnw, aes(year, y, color = Age)) +\n  geom_point(size = 1.2) +\n  geom_point(aes(x = year, y = k1), color = \"black\", size = 2) +\n  geom_line(aes(x = year, y = k1), color = \"black\", linewidth = 1.2) +\n  xlab(\"Year\") + ylab(\"ASDR (log)\") +\n  theme_bw() +\n  guides(color = guide_legend(override.aes = list(size = 5))) +\n  theme(axis.text = element_text(size = 15)) +\n  theme(legend.text = element_text(size = 20)) +\n  theme(axis.title = element_text(size = 20)) +\n  theme(strip.text = element_text(size = 20)) +\n  theme(legend.title = element_text(size = 20))"
+  },
+  {
+    "objectID": "index.html#plot-of-k_t",
+    "href": "index.html#plot-of-k_t",
+    "title": "Mortality Modelling using Generalized Estimating Equations",
+    "section": "Plot of \\(k_t\\)",
+    "text": "Plot of \\(k_t\\)\n\n# Create a new data frame ASDRsnw with adjusted Age and year columns\nASDRsnw &lt;- ASDRs %&gt;%  \n  mutate(Age = age) %&gt;%\n  mutate(year = as.numeric(as.character(year)))\n# Plot ASDR and k_t over time with color differentiation based on Age\nggplot(ASDRsnw, aes(year, y, color = Age)) +\n  geom_point(size = 1.2) +\n  geom_point(aes(x = year, y = k1), color = \"black\", size = 2) +\n  geom_line(aes(x = year, y = k1), color = \"black\", linewidth = 1.2) +\n  xlab(\"Year\") + ylab(\"ASDR (log)\") +\n  theme_bw() +\n  guides(color = guide_legend(override.aes = list(size = 5))) +\n  theme(axis.text = element_text(size = 15)) +\n  theme(legend.text = element_text(size = 20)) +\n  theme(axis.title = element_text(size = 20)) +\n  theme(strip.text = element_text(size = 20)) +\n  theme(legend.title = element_text(size = 20))"
+  }
+]
